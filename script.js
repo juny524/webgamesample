@@ -1,85 +1,100 @@
+        // Phaser 3 を使ったハノイの塔のゲーム
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            backgroundColor: '#ffffff',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: true
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
 
-// Phaser 3 を使ったシンプルなジャンプゲーム
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 300 },
-            debug: false
+        const game = new Phaser.Game(config);
+        let selectedDisks = [];
+        const pillarDisks = [[], [], []]; // 各支柱のディスクを管理
+
+        function preload() {
+            // 画像をロード
+            this.load.image('pillar', 'assets/pillar.png');
+            this.load.image('first_floor', 'assets/first_floor.png');
+            this.load.image('second_floor', 'assets/second_floor.png');
+            this.load.image('third_floor', 'assets/third_floor.png');
+            this.load.image('fourth_floor', 'assets/fourth_floor.png');
+            this.load.image('fifth_floor', 'assets/fifth_floor.png');
         }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
 
-const game = new Phaser.Game(config);
+        function create() {
+            // 支柱を配置
+            const pillarXPositions = [200, 400, 600];
+            const pillars = [];
 
-let player;
+            pillarXPositions.forEach((x, index) => {
+                const pillar = this.add.image(x, 450, 'pillar').setInteractive();
+                pillars.push(pillar);
 
-function preload() {
-    // キャラ画像をロード
-    this.load.image('sky', 'assets/sky.png');
-    this.load.image('platform', 'assets/platform.png');
-    this.load.image('character', 'assets/character.png');
-    this.load.image('menuButton', 'assets/menuButton.png'); // メニューボタン用画像
-}
+                // 支柱のクリックイベント
+                pillar.on('pointerdown', () => {
+                    const pillarIndex = pillars.indexOf(pillar);
+                    const pillarTopDisk = pillarDisks[pillarIndex][pillarDisks[pillarIndex].length - 1];
 
-function create() {
-    // 背景
-    this.add.image(400, 300, 'sky');
+                    if (selectedDisks.length > 0) {
+                        const selectedDisk = selectedDisks[selectedDisks.length - 1];
+                        const currentPillarIndex = pillarDisks.findIndex(p => p.includes(selectedDisk));
 
-    // プラットフォーム
-    const platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, 'platform').setScale(2).refreshBody();
+                        if (pillarIndex === currentPillarIndex) {
+                            // 同じ支柱をクリックして選択解除
+                            selectedDisks.forEach(d => d.setTint(0xffffff));
+                            selectedDisks = [];
+                        } else {
+                            // 選択されたディスクを移動
+                            const targetPillarDisks = pillarDisks[pillarIndex];
+                            if (
+                                // ディスクがないか、選択されたディスクより大きいディスクがない場合
+                                targetPillarDisks.length === 0 ||
+                                selectedDisk.texture.key < targetPillarDisks[targetPillarDisks.length - 1].texture.key
+                            ) {
+                                const newY = 400 - targetPillarDisks.length * 20;
+                                selectedDisk.x = x;
+                                selectedDisk.y = newY;
 
-    // プレイヤーキャラクター
-    player = this.physics.add.sprite(100, 450, 'character');
+                                // 更新
+                                pillarDisks[currentPillarIndex].pop();
+                                pillarDisks[pillarIndex].push(selectedDisk);
 
-    player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
+                                // 選択解除
+                                selectedDisks.forEach(d => d.setTint(0xffffff));
+                                selectedDisks = [];
+                            }
+                        }
+                    } else {
+                        // 支柱上のディスクを選択
+                        if (pillarTopDisk) {
+                            pillarTopDisk.setTint(0xff0000);
+                            selectedDisks = [pillarTopDisk];
+                        }
+                    }
+                });
+            });
 
-    // 地面と衝突判定
-    this.physics.add.collider(player, platforms);
+            // ディスクを最初の支柱に配置
+            const disks = ['first_floor', 'second_floor', 'third_floor', 'fourth_floor', 'fifth_floor'];
+            let startY = 400;
 
-    // タップまたはクリックでジャンプ
-    this.input.on('pointerdown', () => {
-        console.log('Pointer clicked or tapped!');
-        console.log('Blocked Down: ', player.body.blocked.down);
-        console.log('Touching Down: ', player.body.touching.down);
-        console.log('On Floor: ', player.body.onFloor());
-
-        if (player.body.blocked.down) { // ← blocked.downに変更
-            console.log('player.body.blocked.down ----- OKOKOKOK');
-            player.setVelocityX(1000);
-            player.setVelocityY(-330);
+            disks.forEach((disk, index) => {
+                const diskImage = this.add.image(200, startY - index * 20, disk).setInteractive(); // 20pxずつ上にずらして配置
+                pillarDisks[0].push(diskImage);
+            });
         }
-    });
 
-    // メニューボタンを追加
-    const menuButton = this.add.image(50, 50, 'menuButton')
-        .setInteractive()
-        .setScale(0.5);
-
-
-    menuButton.on('pointerdown', () => {
-        player.setX(config.width / 2);
-        // player.setY(-200);
-        player.setVelocityX(0);
-        player.setY(300);
-        player.setVelocityY(0); // 一旦速度をリセット
-        player.body.setAllowGravity(true); // 重力を有効化
-        // alert('Menu Button Clicked!');
-    });
-
-
-}
-
-function update() {
-    // 更新処理はここに追加
-}
+        function update() {
+            // 更新処理はここに追加
+        }
