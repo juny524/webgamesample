@@ -25,11 +25,11 @@
         function preload() {
             // 画像をロード
             this.load.image('pillar', 'assets/pillar.png');
-            this.load.image('first_floor', 'assets/first_floor.png');
-            this.load.image('second_floor', 'assets/second_floor.png');
-            this.load.image('third_floor', 'assets/third_floor.png');
-            this.load.image('fourth_floor', 'assets/fourth_floor.png');
-            this.load.image('fifth_floor', 'assets/fifth_floor.png');
+            this.load.image('5_first_floor', 'assets/first_floor.png');
+            this.load.image('4_second_floor', 'assets/second_floor.png');
+            this.load.image('3_third_floor', 'assets/third_floor.png');
+            this.load.image('2_fourth_floor', 'assets/fourth_floor.png');
+            this.load.image('1_fifth_floor', 'assets/fifth_floor.png');
         }
 
         function create() {
@@ -57,11 +57,13 @@
                         } else {
                             // 選択されたディスクを移動
                             const targetPillarDisks = pillarDisks[pillarIndex];
-                            if (
-                                // ディスクがないか、選択されたディスクより大きいディスクがない場合
-                                targetPillarDisks.length === 0 ||
-                                selectedDisk.texture.key < targetPillarDisks[targetPillarDisks.length - 1].texture.key
-                            ) {
+                            const selectedDiskSize = parseInt(selectedDisk.texture.key.split('_')[0]);
+                            const targetTopDiskSize = targetPillarDisks.length > 0
+                                ? parseInt(targetPillarDisks[targetPillarDisks.length - 1].texture.key.split('_')[0])
+                                : Infinity;
+
+                            if (selectedDiskSize < targetTopDiskSize) {
+                                console.log('Move Allowed:', selectedDisk.texture.key, 'to', pillarIndex);
                                 const newY = 400 - targetPillarDisks.length * 20;
                                 selectedDisk.x = x;
                                 selectedDisk.y = newY;
@@ -73,11 +75,14 @@
                                 // 選択解除
                                 selectedDisks.forEach(d => d.setTint(0xffffff));
                                 selectedDisks = [];
+                            } else {
+                                console.log('Move Not Allowed:', selectedDisk.texture.key, 'to', pillarIndex);
                             }
                         }
                     } else {
                         // 支柱上のディスクを選択
                         if (pillarTopDisk) {
+                            console.log('Top Disk Selected:', pillarTopDisk.texture.key);
                             pillarTopDisk.setTint(0xff0000);
                             selectedDisks = [pillarTopDisk];
                         }
@@ -86,7 +91,7 @@
             });
 
             // ディスクを最初の支柱に配置
-            const disks = ['first_floor', 'second_floor', 'third_floor', 'fourth_floor', 'fifth_floor'];
+            const disks = ['5_first_floor', '4_second_floor', '3_third_floor', '2_fourth_floor', '1_fifth_floor'];
             let startY = 400;
 
             disks.forEach((disk, index) => {
