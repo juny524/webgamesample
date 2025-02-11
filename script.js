@@ -22,16 +22,17 @@
         let selectedDisks = [];
         let disks = [];
         const pillarDisks = [[], [], []]; // 各支柱のディスクを管理
+        let messageBox;
 
         function preload() {
             // 画像をロード
             this.load.image('pillar', 'assets/pillar.png');
-            this.load.image('transparent_area', 'assets/transparent_area.png');
             this.load.image('5_first_floor', 'assets/first_floor.png');
             this.load.image('4_second_floor', 'assets/second_floor.png');
             this.load.image('3_third_floor', 'assets/third_floor.png');
             this.load.image('2_fourth_floor', 'assets/fourth_floor.png');
             this.load.image('1_fifth_floor', 'assets/fifth_floor.png');
+            this.load.image('transparent_area', 'assets/transparent_area.png');
             this.load.image('replay', 'assets/replay.png'); // リプレイボタン画像
         }
 
@@ -83,6 +84,8 @@
                                 // 選択解除
                                 selectedDisks.forEach(d => d.setTint(0xffffff));
                                 selectedDisks = [];
+
+                                checkWinCondition();
                             } else {
                                 console.log('Move Not Allowed:', selectedDisk.texture.key, 'to', pillarIndex);
                             }
@@ -108,8 +111,8 @@
                 disks.push(diskImage);
             });
 
-            // リプレイボタンを配置
-            const replayButton = this.add.image(700, 50, 'replay').setInteractive();
+            // リプレイボタンを画面内に配置
+            const replayButton = this.add.image(700, 550, 'replay').setInteractive();
             replayButton.on('pointerdown', resetGame);
         }
 
@@ -122,12 +125,39 @@
                 disk.x = 200;
                 disk.y = startY - index * 20;
             });
+            
+            if (messageBox) {
+                document.body.removeChild(messageBox);
+                messageBox = null;
+            }
 
             // 配列をリセット
             pillarDisks[0] = [...disks];
             pillarDisks[1] = [];
             pillarDisks[2] = [];
             selectedDisks = [];
+        }
+
+        function checkWinCondition() {
+            if (pillarDisks[1].length === 5 || pillarDisks[2].length === 5) {
+                if (messageBox) {
+                    messageBox.remove();
+                }
+        
+                messageBox = document.createElement("div");
+                messageBox.textContent = "Congratulations! You Win!";
+                messageBox.style.position = "absolute";
+                messageBox.style.top = "50%";
+                messageBox.style.left = "50%";
+                messageBox.style.transform = "translate(-50%, -50%)";
+                messageBox.style.padding = "20px";
+                messageBox.style.backgroundColor = "white";
+                messageBox.style.border = "2px solid black";
+                messageBox.style.fontSize = "24px";
+                messageBox.style.fontWeight = "bold";
+                messageBox.style.textAlign = "center";
+                document.body.appendChild(messageBox);
+            }
         }
 
         function update() {
