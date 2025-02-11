@@ -1,8 +1,8 @@
-assets/*.png
-assets/*.jpg
-assets/*.jpeg
-assets/*.gif
-assets/*.svg
+# assets/*.png
+# assets/*.jpg
+# assets/*.jpeg
+# assets/*.gif
+# assets/*.svg
 assets/old/*
 1x/*.png
 1x/*.jpg
