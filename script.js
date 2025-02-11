@@ -20,30 +20,38 @@
 
         const game = new Phaser.Game(config);
         let selectedDisks = [];
+        let disks = [];
         const pillarDisks = [[], [], []]; // 各支柱のディスクを管理
 
         function preload() {
             // 画像をロード
             this.load.image('pillar', 'assets/pillar.png');
+            this.load.image('transparent_area', 'assets/transparent_area.png');
             this.load.image('5_first_floor', 'assets/first_floor.png');
             this.load.image('4_second_floor', 'assets/second_floor.png');
             this.load.image('3_third_floor', 'assets/third_floor.png');
             this.load.image('2_fourth_floor', 'assets/fourth_floor.png');
             this.load.image('1_fifth_floor', 'assets/fifth_floor.png');
+            this.load.image('replay', 'assets/replay.png'); // リプレイボタン画像
         }
 
         function create() {
             // 支柱を配置
             const pillarXPositions = [200, 400, 600];
             const pillars = [];
+            const clickAreas = []; // クリックエリアのリスト
 
             pillarXPositions.forEach((x, index) => {
-                const pillar = this.add.image(x, 450, 'pillar').setInteractive();
+                const pillar = this.add.image(x, 450, 'pillar');
                 pillars.push(pillar);
 
-                // 支柱のクリックイベント
-                pillar.on('pointerdown', () => {
-                    const pillarIndex = pillars.indexOf(pillar);
+                // 透明画像でクリックエリアを設定
+                const clickArea = this.add.image(x, 450, 'transparent_area').setInteractive();
+                clickAreas.push(clickArea);
+
+                // クリックイベント
+                clickArea.on('pointerdown', () => {
+                    const pillarIndex = clickAreas.indexOf(clickArea);
                     const pillarTopDisk = pillarDisks[pillarIndex][pillarDisks[pillarIndex].length - 1];
 
                     if (selectedDisks.length > 0) {
@@ -91,13 +99,35 @@
             });
 
             // ディスクを最初の支柱に配置
-            const disks = ['5_first_floor', '4_second_floor', '3_third_floor', '2_fourth_floor', '1_fifth_floor'];
+            const diskKeys = ['5_first_floor', '4_second_floor', '3_third_floor', '2_fourth_floor', '1_fifth_floor'];
+            let startY = 400;
+
+            diskKeys.forEach((disk, index) => {
+                const diskImage = this.add.image(200, startY - index * 20, disk).setInteractive(); // 20pxずつ上にずらして配置
+                pillarDisks[0].push(diskImage);
+                disks.push(diskImage);
+            });
+
+            // リプレイボタンを配置
+            const replayButton = this.add.image(700, 50, 'replay').setInteractive();
+            replayButton.on('pointerdown', resetGame);
+        }
+
+        function resetGame() {
+            // 初期位置に戻す
+            const diskKeys = ['5_first_floor', '4_second_floor', '3_third_floor', '2_fourth_floor', '1_fifth_floor'];
             let startY = 400;
 
             disks.forEach((disk, index) => {
-                const diskImage = this.add.image(200, startY - index * 20, disk).setInteractive(); // 20pxずつ上にずらして配置
-                pillarDisks[0].push(diskImage);
+                disk.x = 200;
+                disk.y = startY - index * 20;
             });
+
+            // 配列をリセット
+            pillarDisks[0] = [...disks];
+            pillarDisks[1] = [];
+            pillarDisks[2] = [];
+            selectedDisks = [];
         }
 
         function update() {
