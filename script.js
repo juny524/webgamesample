@@ -24,6 +24,9 @@
         const pillarDisks = [[], [], []]; // 各支柱のディスクを管理
         let messageBox;
 
+        const DISC_Y = 500;
+        const DISC_THICKNESS = 50;
+
         function preload() {
             // 画像をロード
             this.load.image('pillar', 'assets/pillar.png');
@@ -43,11 +46,11 @@
             const clickAreas = []; // クリックエリアのリスト
 
             pillarXPositions.forEach((x, index) => {
-                const pillar = this.add.image(x, 450, 'pillar');
+                const pillar = this.add.image(x, 350, 'pillar');
                 pillars.push(pillar);
 
                 // 透明画像でクリックエリアを設定
-                const clickArea = this.add.image(x, 450, 'transparent_area').setInteractive();
+                const clickArea = this.add.image(x, 350, 'transparent_area').setInteractive();
                 clickAreas.push(clickArea);
                 clickArea.setDepth(1); // 一番手前に配置
 
@@ -74,7 +77,7 @@
 
                             if (selectedDiskSize < targetTopDiskSize) {
                                 console.log('Move Allowed:', selectedDisk.texture.key, 'to', pillarIndex);
-                                const newY = 400 - targetPillarDisks.length * 20;
+                                const newY = DISC_Y - targetPillarDisks.length * DISC_THICKNESS;
                                 selectedDisk.x = x;
                                 selectedDisk.y = newY;
 
@@ -104,27 +107,27 @@
 
             // ディスクを最初の支柱に配置
             const diskKeys = ['5_first_floor', '4_second_floor', '3_third_floor', '2_fourth_floor', '1_fifth_floor'];
-            let startY = 400;
+            let startY = DISC_Y;
 
             diskKeys.forEach((disk, index) => {
-                const diskImage = this.add.image(200, startY - index * 20, disk).setInteractive(); // 20pxずつ上にずらして配置
+                const diskImage = this.add.image(200, startY - index * DISC_THICKNESS, disk).setInteractive(); // 20pxずつ上にずらして配置
                 pillarDisks[0].push(diskImage);
                 disks.push(diskImage);
             });
 
             // リプレイボタンを画面内に配置
-            const replayButton = this.add.image(700, 550, 'replay').setInteractive();
+            const replayButton = this.add.image(150, 100, 'replay').setInteractive();
             replayButton.on('pointerdown', resetGame);
         }
 
         function resetGame() {
             // 初期位置に戻す
             const diskKeys = ['5_first_floor', '4_second_floor', '3_third_floor', '2_fourth_floor', '1_fifth_floor'];
-            let startY = 400;
+            let startY = DISC_Y;
 
             disks.forEach((disk, index) => {
                 disk.x = 200;
-                disk.y = startY - index * 20;
+                disk.y = startY - index * DISC_THICKNESS;
             });
 
             if (messageBox) {
