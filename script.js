@@ -49,6 +49,7 @@
                 // 透明画像でクリックエリアを設定
                 const clickArea = this.add.image(x, 450, 'transparent_area').setInteractive();
                 clickAreas.push(clickArea);
+                clickArea.setDepth(1); // 一番手前に配置
 
                 // クリックイベント
                 clickArea.on('pointerdown', () => {
@@ -125,7 +126,7 @@
                 disk.x = 200;
                 disk.y = startY - index * 20;
             });
-            
+
             if (messageBox) {
                 document.body.removeChild(messageBox);
                 messageBox = null;
