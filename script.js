@@ -1,24 +1,46 @@
-        // Phaser 3 を使ったハノイの塔のゲーム
-        const config = {
-            type: Phaser.AUTO,
-            width: 800,
-            height: 600,
-            backgroundColor: '#ffffff',
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    gravity: { y: 0 },
-                    debug: true
+        function getGameConfig() {
+            let isMobile = window.innerHeight > window.innerWidth;
+            return {
+                type: Phaser.AUTO,
+                width: isMobile ? 800 : 800,
+                height: isMobile ? 600 : 600,
+                backgroundColor: '#ffffff',
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 0 },
+                        debug: true
+                    }
+                },
+                scale: {
+                    mode: isMobile ? Phaser.Scale.FIT : Phaser.Scale.NONE,
+                    autoCenter: isMobile ? Phaser.Scale.CENTER_BOTH : Phaser.Scale.NO_CENTER
+                },
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
                 }
-            },
-            scene: {
-                preload: preload,
-                create: create,
-                update: update
-            }
-        };
+            };
+        }
 
-        const game = new Phaser.Game(config);
+        let game = new Phaser.Game(getGameConfig());
+
+        function adjustGameOrientation() {
+            let isMobile = window.innerHeight > window.innerWidth;
+        
+            if (isMobile) {
+                game.scale.resize(800, 600);
+            } else {
+                game.scale.resize(800, 600);
+            }
+            game.scale.refresh();
+        }
+        
+        window.addEventListener("resize", adjustGameOrientation);
+        window.addEventListener("load", adjustGameOrientation);
+
+        
         let selectedDisks = [];
         let disks = [];
         const pillarDisks = [[], [], []]; // 各支柱のディスクを管理
