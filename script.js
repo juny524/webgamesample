@@ -1,9 +1,11 @@
         function getGameConfig() {
-            let isMobile = window.innerHeight > window.innerWidth;
+            // let isMobile = window.innerHeight > window.innerWidth;
             return {
                 type: Phaser.AUTO,
-                width: isMobile ? 800 : 800,
-                height: isMobile ? 600 : 600,
+                // width: isMobile ? 800 : 800,
+                // height: isMobile ? 600 : 600,
+                width: 800,
+                height: 600,
                 backgroundColor: '#ffffff',
                 physics: {
                     default: 'arcade',
@@ -13,8 +15,10 @@
                     }
                 },
                 scale: {
-                    mode: isMobile ? Phaser.Scale.FIT : Phaser.Scale.NONE,
-                    autoCenter: isMobile ? Phaser.Scale.CENTER_BOTH : Phaser.Scale.NO_CENTER
+                    // mode: isMobile ? Phaser.Scale.FIT : Phaser.Scale.NONE,
+                    // autoCenter: isMobile ? Phaser.Scale.CENTER_BOTH : Phaser.Scale.NO_CENTER
+                    mode: Phaser.Scale.NONE,
+                    autoCenter: Phaser.Scale.NO_CENTER
                 },
                 scene: {
                     preload: preload,
